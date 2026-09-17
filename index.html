@@ -1,722 +1,1269 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nomad Musafir Trails — Explore. Wander. Connect.</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-
-  /* ---------- Design tokens ---------- */
-  :root{
-    --obsidian: #F5F1E8;   /* light-mode base (rarely seen — brand is dark-first) */
-    --sand: #0B0B0A;
-    --terracotta: #C75B3C;
-    --sun: #E7A83E;
-    --forest: #17352C;
-    --cloud: #ffffff;
-    --ink: #0B0B0A;
-    --paper: #F5F1E8;
-    --line: rgba(11,11,10,0.14);
-  }
-
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --obsidian: #0B0B0A;
-      --sand: #E9DDC8;
-      --terracotta: #C75B3C;
-      --sun: #E7A83E;
-      --forest: #17352C;
-      --cloud: #F5F1E8;
-      --ink: #F5F1E8;
-      --paper: #14100E;
-      --line: rgba(233,221,200,0.16);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nomad Musafir Trails — Visual Discovery, Spontaneous Trips & Community</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#0B0B0A',
+            paper: '#14100E',
+            sand: '#E9DDC8',
+            terracotta: {
+              DEFAULT: '#C75B3C',
+              hover: '#B14E33',
+              subtle: 'rgba(199, 91, 60, 0.15)'
+            },
+            sun: '#E7A83E',
+            forest: '#17352C',
+            cloud: '#F5F1E8',
+            line: 'rgba(233, 221, 200, 0.14)'
+          },
+          fontFamily: {
+            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
     }
-  }
+  </script>
 
-  :root[data-theme="dark"]{
-    --obsidian: #0B0B0A;
-    --sand: #E9DDC8;
-    --terracotta: #C75B3C;
-    --sun: #E7A83E;
-    --forest: #17352C;
-    --cloud: #F5F1E8;
-    --ink: #F5F1E8;
-    --paper: #14100E;
-    --line: rgba(233,221,200,0.16);
-  }
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-  /* This brand is dark-cinematic by design intent — force the identity regardless
-     of viewer color-scheme, while still honoring an explicit light override. */
-  :root{
-    --obsidian: #0B0B0A;
-    --sand: #E9DDC8;
-    --terracotta: #C75B3C;
-    --sun: #E7A83E;
-    --forest: #17352C;
-    --cloud: #F5F1E8;
-    --ink: #F5F1E8;
-    --paper: #14100E;
-    --line: rgba(233,221,200,0.16);
-  }
-  :root[data-theme="light"]{
-    --obsidian: #F5F1E8;
-    --sand: #0B0B0A;
-    --ink: #0B0B0A;
-    --paper: #ffffff;
-    --line: rgba(11,11,10,0.14);
-  }
+  <!-- Alpine.js CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-  *{ box-sizing: border-box; }
-  html{ scroll-behavior: smooth; }
-  body{
-    margin:0;
-    background: var(--obsidian);
-    color: var(--ink);
-    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-  .serif{ font-family: 'Cormorant Garamond', Georgia, serif; }
-  a{ color: inherit; text-decoration: none; }
-  img{ max-width: 100%; }
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0B0B0A; }
+    ::-webkit-scrollbar-thumb { background: #2A2622; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #C75B3C; }
 
-  .wrap{
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 0 clamp(20px, 5vw, 64px);
-  }
+    /* Topographic contours animation */
+    .trail-path {
+      stroke-dasharray: 1400;
+      stroke-dashoffset: 1400;
+      animation: drawTrail 3.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes drawTrail { to { stroke-dashoffset: 0; } }
 
-  ::selection{ background: var(--terracotta); color: #fff; }
+    .pulse-glow {
+      animation: pulseGlow 2.5s infinite alternate ease-in-out;
+    }
+    @keyframes pulseGlow {
+      0% { opacity: 0.4; transform: scale(0.98); }
+      100% { opacity: 0.85; transform: scale(1.02); }
+    }
 
-  /* focus visibility */
-  a:focus-visible, button:focus-visible, .chip:focus-visible{
-    outline: 2px solid var(--sun);
-    outline-offset: 3px;
-  }
+    /* Glassmorphism */
+    .glass-panel {
+      background: rgba(20, 16, 14, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(233, 221, 200, 0.12);
+    }
+    
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(233, 221, 200, 0.12);
+    }
 
-  @media (prefers-reduced-motion: reduce){
-    *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
-  }
-
-  /* ---------- Nav ---------- */
-  header.site{
-    position: fixed; top:0; left:0; right:0; z-index: 50;
-    padding: 22px 0;
-    mix-blend-mode: normal;
-  }
-  header.site .row{
-    display:flex; align-items:center; justify-content:space-between;
-    gap: 24px;
-  }
-  .brandmark{
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 21px;
-    letter-spacing: 0.02em;
-    color: var(--cloud);
-    display:flex; align-items:center; gap:10px;
-  }
-  .brandmark svg{ width: 22px; height: 22px; flex: none; }
-  nav.links{
-    display:flex; gap: 34px;
-    font-size: 14.5px;
-    color: rgba(245,241,232,0.78);
-  }
-  nav.links a{ position:relative; padding-bottom: 3px; }
-  nav.links a::after{
-    content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
-    background: var(--sun); transform: scaleX(0); transform-origin: left;
-    transition: transform .35s ease;
-  }
-  nav.links a:hover::after{ transform: scaleX(1); }
-  nav.links a:hover{ color: var(--cloud); }
-  @media (max-width: 760px){ nav.links{ display:none; } }
-
-  /* ---------- Hero ---------- */
-  .hero{
-    position:relative;
-    min-height: 100svh;
-    display:flex; flex-direction:column; justify-content:flex-end;
-    background:
-      radial-gradient(1100px 600px at 82% -8%, rgba(199,91,60,0.30), transparent 60%),
-      radial-gradient(900px 500px at -10% 110%, rgba(23,53,44,0.55), transparent 60%),
-      linear-gradient(180deg, #0B0B0A 0%, #0E0D0B 55%, #0B0B0A 100%);
-    padding-bottom: 72px;
-    padding-top: 140px;
-    overflow: hidden;
-  }
-  .hero .contours{
-    position:absolute; inset:0; z-index:0; opacity:0.5;
-  }
-  .hero .trail-path{
-    stroke: rgba(233,221,200,0.55);
-    stroke-width: 1.4;
-    fill: none;
-    stroke-dasharray: 1400;
-    stroke-dashoffset: 1400;
-    animation: draw 3.2s 0.3s cubic-bezier(.2,.7,.2,1) forwards;
-  }
-  .hero .trail-dot{
-    fill: var(--sun);
-    opacity: 0;
-    animation: dotIn .6s ease forwards;
-  }
-  @keyframes draw{ to{ stroke-dashoffset: 0; } }
-  @keyframes dotIn{ to{ opacity: 1; } }
-
-  .hero-inner{
-    position:relative; z-index:2;
-  }
-  .kicker{
-    color: var(--sun);
-    font-size: 13.5px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    margin: 0 0 22px;
-    max-width: 40ch;
-    line-height:1.5;
-  }
-  h1.hero-head{
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    color: var(--cloud);
-    font-size: clamp(40px, 7.2vw, 96px);
-    line-height: 1.02;
-    letter-spacing: -0.01em;
-    margin: 0 0 30px;
-    max-width: 16ch;
-  }
-  h1.hero-head em{ font-style: italic; color: var(--terracotta); }
-
-  .hero-foot{
-    display:flex; align-items:flex-end; justify-content: space-between;
-    gap: 40px; flex-wrap: wrap;
-  }
-  .hero-copy{
-    max-width: 46ch;
-    color: rgba(245,241,232,0.72);
-    font-size: 16.5px;
-    line-height: 1.65;
-  }
-  .btn{
-    display:inline-flex; align-items:center; gap:10px;
-    background: var(--terracotta);
-    color: #fff;
-    padding: 15px 26px;
-    border-radius: 3px;
-    font-size: 15px;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background .25s ease, transform .25s ease;
-  }
-  .btn:hover{ background: #B14E33; transform: translateY(-1px); }
-  .btn.ghost{
-    background: transparent;
-    border: 1px solid rgba(245,241,232,0.4);
-    color: var(--cloud);
-  }
-  .btn.ghost:hover{ border-color: var(--cloud); background: rgba(245,241,232,0.06); }
-
-  /* ---------- Mood section ---------- */
-  section.mood{
-    background: var(--paper);
-    padding: 108px 0 96px;
-    border-top: 1px solid var(--line);
-  }
-  .section-head{
-    display:grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px;
-    margin-bottom: 56px;
-    align-items: end;
-  }
-  @media (max-width: 800px){ .section-head{ grid-template-columns: 1fr; } }
-  .section-head h2{
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: clamp(30px, 4vw, 48px);
-    line-height: 1.1;
-    margin: 0;
-    color: var(--ink);
-  }
-  .section-head p{
-    margin:0; font-size: 15.5px; line-height: 1.65;
-    color: color-mix(in srgb, var(--ink) 62%, transparent);
-  }
-
-  .moods{
-    display: flex; flex-wrap: wrap; gap: 12px;
-  }
-  .chip{
-    display:flex; align-items:center; gap:10px;
-    padding: 13px 20px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    font-size: 14.5px;
-    color: var(--ink);
-    background: transparent;
-    cursor: pointer;
-    transition: border-color .2s ease, background .2s ease;
-  }
-  .chip:hover{ border-color: var(--terracotta); background: color-mix(in srgb, var(--terracotta) 8%, transparent); }
-  .chip .dot{ width:7px; height:7px; border-radius:50%; background: var(--terracotta); flex:none; }
-
-  /* ---------- Trails (asymmetric grid, not uniform cards) ---------- */
-  section.trails{ padding: 20px 0 112px; background: var(--paper); }
-  .trail-grid{
-    display:grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 22px;
-  }
-  @media (max-width: 900px){ .trail-grid{ grid-template-columns: 1fr; } }
-
-  .trail-card{
-    position:relative;
-    border-radius: 4px;
-    overflow:hidden;
-    color: var(--cloud);
-    display:flex; flex-direction:column; justify-content:flex-end;
-    padding: 26px;
-    min-height: 320px;
-  }
-  .trail-card.big{ grid-column: span 4; min-height: 460px; }
-  .trail-card.small{ grid-column: span 2; }
-  @media (max-width: 900px){ .trail-card.big, .trail-card.small{ grid-column: span 1; } }
-
-  .trail-card.ladakh{ background:
-    radial-gradient(120% 100% at 100% 0%, rgba(231,168,62,0.35), transparent 55%),
-    linear-gradient(200deg, #2B2420 0%, #14100E 65%); }
-  .trail-card.bali{ background:
-    radial-gradient(120% 100% at 0% 0%, rgba(23,53,44,0.6), transparent 55%),
-    linear-gradient(210deg, #1B2320 0%, #101312 70%); }
-  .trail-card.nepal{ background:
-    radial-gradient(120% 120% at 100% 100%, rgba(199,91,60,0.32), transparent 55%),
-    linear-gradient(160deg, #241a16 0%, #120e0c 70%); }
-
-  .trail-card .coords{
-    font-size: 12px; letter-spacing: 0.02em;
-    color: rgba(245,241,232,0.55);
-    margin-bottom: 10px;
-  }
-  .trail-card h3{
-    font-family:'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: clamp(24px, 2.6vw, 34px);
-    margin: 0 0 8px;
-  }
-  .trail-card .meta{
-    display:flex; gap:14px; align-items:center;
-    font-size: 13px; color: rgba(245,241,232,0.68);
-    margin-bottom: 6px;
-  }
-  .trail-card .going{
-    font-size: 13px; color: var(--sun);
-  }
-  .trail-card::before{
-    content:""; position:absolute; inset:0;
-    background: linear-gradient(0deg, rgba(0,0,0,0.35), transparent 55%);
-  }
-
-  /* ---------- Editorial itinerary strip ---------- */
-  section.itinerary{
-    background: var(--obsidian);
-    padding: 110px 0;
-    color: var(--cloud);
-    border-top: 1px solid var(--line);
-  }
-  .itin-head{
-    display:grid; grid-template-columns: 1fr 1fr; gap: 40px;
-    margin-bottom: 60px;
-  }
-  @media (max-width: 800px){ .itin-head{ grid-template-columns: 1fr; } }
-  .itin-head h2{
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-size: clamp(28px, 4vw, 44px);
-    line-height: 1.15;
-    margin:0;
-  }
-  .itin-head p{
-    font-size: 15.5px; line-height: 1.7; color: rgba(245,241,232,0.65); margin:0; align-self:end;
-  }
-
-  .itin-strip{
-    display:flex; gap: 0;
-    overflow-x: auto;
-    padding-bottom: 20px;
-    scrollbar-width: thin;
-  }
-  .itin-day{
-    flex: 0 0 auto;
-    width: min(300px, 78vw);
-    padding: 0 28px 0 0;
-    position: relative;
-  }
-  .itin-day .rail{
-    display:flex; align-items:center; gap: 10px;
-    margin-bottom: 18px;
-  }
-  .itin-day .num{
-    font-size: 13px; color: var(--sun); font-weight: 700; flex:none;
-  }
-  .itin-day .track{
-    flex:1; height:1px; background: rgba(233,221,200,0.28); position:relative;
-  }
-  .itin-day .track::after{
-    content:""; position:absolute; left:0; top:50%; transform: translateY(-50%);
-    width:6px; height:6px; border-radius:50%; background: var(--terracotta);
-  }
-  .itin-day h4{
-    font-family:'Cormorant Garamond', serif; font-weight:500;
-    font-size: 22px; margin: 0 0 10px;
-  }
-  .itin-day ul{ margin:0; padding:0; list-style:none; }
-  .itin-day li{
-    font-size: 14px; color: rgba(245,241,232,0.68);
-    padding: 7px 0; border-top: 1px solid rgba(233,221,200,0.1);
-  }
-  .itin-day li:first-child{ border-top:none; }
-
-  /* ---------- Community ---------- */
-  section.tribe{
-    background: var(--forest);
-    color: var(--cloud);
-    padding: 110px 0;
-  }
-  .tribe-grid{
-    display:grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items:center;
-  }
-  @media (max-width: 860px){ .tribe-grid{ grid-template-columns: 1fr; gap: 48px; } }
-  .tribe-grid h2{
-    font-family:'Cormorant Garamond', serif; font-weight:500;
-    font-size: clamp(30px, 4.4vw, 50px); line-height:1.12; margin:0 0 22px;
-  }
-  .tribe-grid p{
-    font-size: 16px; line-height:1.7; color: rgba(245,241,232,0.75);
-    max-width: 48ch; margin: 0 0 30px;
-  }
-  .avatars{ display:flex; align-items:center; }
-  .avatars .a{
-    width: 44px; height:44px; border-radius:50%; margin-left:-12px;
-    border: 2px solid var(--forest);
-    display:flex; align-items:center; justify-content:center;
-    font-size: 12px; font-weight:700; color:#fff;
-  }
-  .avatars .a:first-child{ margin-left:0; }
-  .avatars .more{ margin-left:14px; font-size:14px; color: rgba(245,241,232,0.7); }
-
-  .passport{
-    background: var(--paper);
-    color: var(--ink);
-    border-radius: 6px;
-    padding: 32px;
-    position: relative;
-    border: 1px solid rgba(0,0,0,0.06);
-  }
-  .passport .top{
-    display:flex; justify-content:space-between; align-items:flex-start;
-    margin-bottom: 26px;
-  }
-  .passport .tag{
-    font-size: 11.5px; color: var(--terracotta); font-weight:700;
-  }
-  .passport h3{
-    font-family:'Cormorant Garamond', serif; font-weight:500;
-    font-size: 26px; margin: 4px 0 0;
-  }
-  .passport .stat-row{
-    display:flex; justify-content:space-between;
-    font-size: 14px; padding: 11px 0;
-    border-top: 1px solid var(--line);
-  }
-  .passport .stat-row:first-of-type{ border-top:none; }
-  .badges{ display:flex; gap:8px; flex-wrap:wrap; margin-top: 18px; }
-  .badge{
-    font-size: 12px; padding: 6px 12px; border-radius: 999px;
-    background: color-mix(in srgb, var(--terracotta) 12%, transparent);
-    color: var(--terracotta);
-  }
-
-  /* ---------- Booking teaser ---------- */
-  section.book{
-    padding: 120px 0;
-    background: var(--paper);
-    border-top: 1px solid var(--line);
-  }
-  .book-grid{
-    display:grid; grid-template-columns: 1.2fr 0.8fr; gap: 60px; align-items:center;
-  }
-  @media (max-width: 860px){ .book-grid{ grid-template-columns: 1fr; } }
-  .book-grid h2{
-    font-family:'Cormorant Garamond', serif; font-weight:500;
-    font-size: clamp(30px, 4.6vw, 54px); line-height:1.1; margin:0 0 22px;
-    color: var(--ink);
-  }
-  .book-grid p{ font-size:16px; line-height:1.7; color: color-mix(in srgb, var(--ink) 62%, transparent); max-width: 46ch; margin-bottom: 30px; }
-
-  .ticket{
-    background: var(--obsidian);
-    color: var(--cloud);
-    border-radius: 6px;
-    padding: 30px;
-  }
-  .ticket .dest{ font-size: 13px; color: rgba(245,241,232,0.6); margin-bottom:4px; }
-  .ticket h4{ font-family:'Cormorant Garamond', serif; font-weight:500; font-size:28px; margin:0 0 20px; }
-  .ticket .price{ font-size: 30px; font-weight:600; color: var(--sun); margin-bottom: 22px; }
-  .ticket .dep{ display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap; }
-  .ticket .dep span{
-    font-size:13px; padding:8px 12px; border:1px solid rgba(245,241,232,0.25); border-radius:4px;
-    color: rgba(245,241,232,0.85);
-  }
-  .ticket .dep span.sel{ border-color: var(--terracotta); color: var(--sun); }
-  .ticket .btn{ width:100%; justify-content:center; }
-
-  /* ---------- Footer ---------- */
-  footer{
-    background: var(--obsidian);
-    color: rgba(245,241,232,0.6);
-    padding: 64px 0 40px;
-    border-top: 1px solid var(--line);
-  }
-  .foot-row{
-    display:flex; justify-content:space-between; align-items:flex-start; gap: 40px; flex-wrap:wrap;
-    margin-bottom: 50px;
-  }
-  .foot-row .brandmark{ margin-bottom: 14px; }
-  .foot-row p{ max-width: 34ch; font-size: 14px; line-height:1.65; margin:0; }
-  .foot-links{ display:flex; gap:60px; flex-wrap:wrap; }
-  .foot-links div h5{ font-size:13px; color: var(--cloud); margin: 0 0 14px; font-weight:600; }
-  .foot-links a{ display:block; font-size:14px; padding: 6px 0; color: rgba(245,241,232,0.6); }
-  .foot-links a:hover{ color: var(--cloud); }
-  .foot-bottom{
-    font-size: 12.5px; padding-top: 26px; border-top: 1px solid var(--line);
-    display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
-  }
-</style>
+    [x-cloak] { display: none !important; }
+  </style>
 </head>
-<body>
+<body x-data="nomadApp()" class="bg-obsidian text-cloud font-sans antialiased min-h-screen flex flex-col selection:bg-terracotta selection:text-white">
 
-  <header class="site">
-    <div class="wrap row">
-      <a class="brandmark" href="#top">
-        <svg viewBox="0 0 24 24"><path d="M12 2 L20 20 L12 16 L4 20 Z" fill="#E7A83E"/></svg>
-        Nomad Musafir
+  <!-- Toast Notification -->
+  <div x-show="showToast" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-8 opacity-0" x-transition:enter-end="translate-y-0 opacity-100" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0 opacity-100" x-transition:leave-end="translate-y-8 opacity-0" class="fixed bottom-6 right-6 z-50 glass-panel border-l-4 border-terracotta text-cloud px-5 py-4 rounded-lg shadow-2xl flex items-center gap-3 max-w-md" x-cloak>
+    <i data-lucide="compass" class="w-5 h-5 text-sun animate-spin-slow"></i>
+    <span class="text-sm font-medium" x-text="toastMessage"></span>
+  </div>
+
+  <!-- NAVIGATION BAR -->
+  <header class="fixed top-0 left-0 right-0 z-40 transition-all duration-300" :class="scrolled ? 'glass-panel py-3 shadow-2xl' : 'bg-gradient-to-b from-obsidian/90 via-obsidian/40 to-transparent py-5'">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" @click.prevent="switchTab('home')" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-lg bg-terracotta/20 border border-terracotta/40 flex items-center justify-center text-sun group-hover:scale-105 transition-transform">
+          <i data-lucide="navigation" class="w-5 h-5 fill-sun/20 text-sun transform -rotate-45"></i>
+        </div>
+        <div>
+          <span class="font-serif text-2xl font-bold tracking-tight text-cloud group-hover:text-sand transition-colors">Nomad Musafir</span>
+          <span class="block text-[10px] tracking-widest uppercase text-terracotta font-semibold -mt-1">Trails</span>
+        </div>
       </a>
-      <nav class="links">
-        <a href="#trails">Trails</a>
-        <a href="#itinerary">A Trail, Day by Day</a>
-        <a href="#tribe">Community</a>
-        <a href="#book">Book</a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+        <button @click="switchTab('home')" class="transition-colors hover:text-sun" :class="activeTab === 'home' ? 'text-sun font-semibold border-b-2 border-sun pb-1' : 'text-cloud/80'">Discover</button>
+        <button @click="switchTab('explore')" class="transition-colors hover:text-sun" :class="activeTab === 'explore' ? 'text-sun font-semibold border-b-2 border-sun pb-1' : 'text-cloud/80'">Explore Map</button>
+        <button @click="switchTab('community')" class="transition-colors hover:text-sun" :class="activeTab === 'community' ? 'text-sun font-semibold border-b-2 border-sun pb-1' : 'text-cloud/80'">Find Tribe</button>
+        <button @click="switchTab('passport')" class="transition-colors hover:text-sun flex items-center gap-1.5" :class="activeTab === 'passport' ? 'text-sun font-semibold border-b-2 border-sun pb-1' : 'text-cloud/80'">
+          <i data-lucide="award" class="w-4 h-4 text-sun"></i>
+          Nomad Passport
+        </button>
       </nav>
-      <a class="btn ghost" href="#book" style="padding:11px 20px; font-size:13.5px;">Log in</a>
+
+      <!-- Right Action Controls -->
+      <div class="flex items-center gap-3">
+        <!-- Quick Search Button -->
+        <button @click="openSearchModal = true" class="p-2 text-cloud/70 hover:text-cloud hover:bg-white/5 rounded-full transition-colors" title="Search Trails">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Wishlist Button -->
+        <button @click="openWishlistDrawer = true" class="relative p-2 text-cloud/70 hover:text-cloud hover:bg-white/5 rounded-full transition-colors" title="Saved Wishlist">
+          <i data-lucide="bookmark" class="w-5 h-5"></i>
+          <span x-show="wishlist.length > 0" x-text="wishlist.length" class="absolute top-1 right-1 w-4 h-4 bg-terracotta text-white text-[10px] font-bold rounded-full flex items-center justify-center"></span>
+        </button>
+
+        <!-- User Profile Avatar / Login -->
+        <template x-if="isLoggedIn">
+          <button @click="switchTab('passport')" class="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full border border-sand/20 hover:border-sun/50 bg-paper/60 transition-all">
+            <img :src="user.avatar" :alt="user.name" class="w-7 h-7 rounded-full object-cover border border-sun/40">
+            <span class="text-xs font-semibold text-sand hidden sm:inline" x-text="user.name.split(' ')[0]"></span>
+          </button>
+        </template>
+        <template x-if="!isLoggedIn">
+          <button @click="openAuthModal = true" class="px-4 py-2 bg-terracotta hover:bg-terracotta-hover text-white text-xs font-bold uppercase tracking-wider rounded transition-all shadow-md">
+            Join
+          </button>
+        </template>
+
+        <!-- Mobile Menu Toggle -->
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 text-cloud/80 hover:text-cloud">
+          <i data-lucide="menu" class="w-6 h-6" x-show="!mobileMenuOpen"></i>
+          <i data-lucide="x" class="w-6 h-6" x-show="mobileMenuOpen"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown Navigation -->
+    <div x-show="mobileMenuOpen" x-collapse class="md:hidden glass-panel border-t border-line mt-2 py-4 px-6 space-y-3">
+      <button @click="switchTab('home'); mobileMenuOpen = false" class="block w-full text-left py-2 text-base font-medium text-cloud hover:text-sun">Discover Trails</button>
+      <button @click="switchTab('explore'); mobileMenuOpen = false" class="block w-full text-left py-2 text-base font-medium text-cloud hover:text-sun">Illustrated Map Explorer</button>
+      <button @click="switchTab('community'); mobileMenuOpen = false" class="block w-full text-left py-2 text-base font-medium text-cloud hover:text-sun">Find Your Tribe</button>
+      <button @click="switchTab('passport'); mobileMenuOpen = false" class="block w-full text-left py-2 text-base font-medium text-cloud hover:text-sun">Nomad Passport</button>
+      <div class="pt-2 border-t border-line flex justify-between items-center">
+        <span class="text-xs text-sand/60">Signed in as <strong class="text-sand" x-text="user.name"></strong></span>
+        <button @click="openAuthModal = true; mobileMenuOpen = false" class="text-xs text-terracotta underline">Switch Account</button>
+      </div>
     </div>
   </header>
 
-  <section class="hero" id="top">
-    <svg class="contours" viewBox="0 0 1240 900" preserveAspectRatio="none" aria-hidden="true">
-      <path class="trail-path" d="M -40 700 C 200 620, 260 500, 420 460 S 620 380, 700 260 S 880 120, 1300 40" />
-      <circle class="trail-dot" style="animation-delay:0.4s" cx="-40" cy="700" r="4"/>
-      <circle class="trail-dot" style="animation-delay:1.4s" cx="420" cy="460" r="4"/>
-      <circle class="trail-dot" style="animation-delay:2.2s" cx="700" cy="260" r="4"/>
-      <circle class="trail-dot" style="animation-delay:3.0s" cx="1150" cy="60" r="4"/>
-    </svg>
-    <div class="wrap hero-inner">
-      <p class="kicker">Local escapes. International adventures. People worth meeting.</p>
-      <h1 class="hero-head">The world is too big<br>to stay in <em>one place.</em></h1>
-      <div class="hero-foot">
-        <p class="hero-copy">Nomad Musafir Trails plans the route, books the camp, and puts you in a van with people who'd rather explore than sightsee. You bring the curiosity.</p>
-        <div style="display:flex; gap:14px; flex-wrap:wrap;">
-          <a href="#trails" class="btn">Explore trails</a>
-          <a href="#tribe" class="btn ghost">Find your tribe</a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow pt-20">
 
-  <section class="mood">
-    <div class="wrap">
-      <div class="section-head">
-        <h2>What kind of story are you looking for?</h2>
-        <p>Tell us the shape of the trip, not the postcard. We'll match you to a trail, a departure date, and the people already going.</p>
-      </div>
-      <div class="moods">
-        <button class="chip"><span class="dot"></span>An adventure</button>
-        <button class="chip"><span class="dot"></span>A wild weekend</button>
-        <button class="chip"><span class="dot"></span>A camping escape</button>
-        <button class="chip"><span class="dot"></span>A beach trip</button>
-        <button class="chip"><span class="dot"></span>Something completely new</button>
-        <button class="chip"><span class="dot"></span>People to travel with</button>
-        <button class="chip"><span class="dot"></span>A photographic journey</button>
-        <button class="chip"><span class="dot"></span>My first trip abroad</button>
-      </div>
-    </div>
-  </section>
+    <!-- ==================== VIEW 1: HOME DISCOVER ==================== -->
+    <div x-show="activeTab === 'home'" x-transition:enter="transition opacity duration-300" x-cloak>
+      
+      <!-- HERO SECTION -->
+      <section class="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-12 pb-20">
+        <!-- Background Hero Image with Overlays -->
+        <div class="absolute inset-0 z-0">
+          <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2000" alt="Mountain adventure" class="w-full h-full object-cover object-center scale-105 filter brightness-[0.42] contrast-110">
+          <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-obsidian/80 via-transparent to-obsidian/80"></div>
+          
+          <!-- Animated Topographic Overlay SVG -->
+          <svg class="absolute inset-0 w-full h-full opacity-35 pointer-events-none" viewBox="0 0 1200 800" preserveAspectRatio="none">
+            <path class="trail-path" d="M -50 650 C 250 580, 320 420, 500 400 S 750 320, 850 180 S 1050 90, 1250 30" stroke="#E9DDC8" stroke-width="1.8" fill="none" />
+            <circle cx="500" cy="400" r="6" fill="#E7A83E" class="pulse-glow" />
+            <circle cx="850" cy="180" r="6" fill="#C75B3C" class="pulse-glow" />
+          </svg>
+        </div>
 
-  <section class="trails" id="trails">
-    <div class="wrap">
-      <div class="trail-grid">
-        <div class="trail-card big ladakh">
-          <div class="coords">34.1526° N / 77.5771° E</div>
-          <h3>Ladakh — Beyond the Map</h3>
-          <div class="meta"><span>7 days</span><span>Group trail</span><span>From ₹24,999</span></div>
-          <div class="going">34 nomads going · 3 spots left on Oct 18</div>
-        </div>
-        <div class="trail-card small bali">
-          <div class="coords">-8.4095° S / 115.1889° E</div>
-          <h3>Bali Tribe</h3>
-          <div class="meta"><span>6 days</span><span>From ₹31,500</span></div>
-          <div class="going">27 nomads going</div>
-        </div>
-        <div class="trail-card small nepal">
-          <div class="coords">28.3949° N / 84.1240° E</div>
-          <h3>Nepal, on Foot</h3>
-          <div class="meta"><span>9 days</span><span>From ₹38,200</span></div>
-          <div class="going">19 nomads going</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="itinerary" id="itinerary">
-    <div class="wrap">
-      <div class="itin-head">
-        <h2>You're not booking a tour.<br>You're joining a story.</h2>
-        <p>Every trail reads like a week worth remembering, not a checklist. Here's how six nights in Ladakh actually unfold.</p>
-      </div>
-      <div class="itin-strip">
-        <div class="itin-day">
-          <div class="rail"><span class="num">01</span><span class="track"></span></div>
-          <h4>Leh</h4>
-          <ul>
-            <li>Arrival, acclimatize slow</li>
-            <li>Meet the group over chai</li>
-            <li>Old town walk at golden hour</li>
-          </ul>
-        </div>
-        <div class="itin-day">
-          <div class="rail"><span class="num">02</span><span class="track"></span></div>
-          <h4>Khardung La</h4>
-          <ul>
-            <li>The world's highest motorable pass</li>
-            <li>Monastery stop at Diskit</li>
-            <li>Bonfire and camp under Nubra's stars</li>
-          </ul>
-        </div>
-        <div class="itin-day">
-          <div class="rail"><span class="num">03</span><span class="track"></span></div>
-          <h4>Pangong</h4>
-          <ul>
-            <li>Ride the shoreline road</li>
-            <li>Lakeside camp, no signal</li>
-            <li>Photography at first light</li>
-          </ul>
-        </div>
-        <div class="itin-day">
-          <div class="rail"><span class="num">04</span><span class="track"></span></div>
-          <h4>Hemis</h4>
-          <ul>
-            <li>Trek to the valley floor</li>
-            <li>Lunch with a local family</li>
-            <li>Slow evening, journal it out</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tribe" id="tribe">
-    <div class="wrap tribe-grid">
-      <div>
-        <h2>Meet before you travel.</h2>
-        <p>Every trail has a group before it has a departure date. See who's coming, what they're into, and whether the vibe fits — this is trail-matching, not a swipe.</p>
-        <div class="avatars">
-          <div class="a" style="background:#C75B3C;">R</div>
-          <div class="a" style="background:#17352C;">M</div>
-          <div class="a" style="background:#E7A83E; color:#0B0B0A;">S</div>
-          <div class="a" style="background:#8a4a34;">A</div>
-          <span class="more">+23 already on the Ladakh trail</span>
-        </div>
-      </div>
-      <div class="passport">
-        <div class="top">
-          <div>
-            <div class="tag">Nomad Passport</div>
-            <h3>Explorer, Level 2</h3>
+        <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center space-y-8">
+          
+          <!-- Trust Badge -->
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-sun/30 text-xs font-medium text-sun tracking-wide uppercase shadow-lg">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sun"></i>
+            <span>Spontaneous Group Trails · Verified Local Captains</span>
           </div>
-          <div style="font-size:24px;">🧭</div>
-        </div>
-        <div class="stat-row"><span>Trails completed</span><span>5</span></div>
-        <div class="stat-row"><span>Distance covered</span><span>8,420 km</span></div>
-        <div class="stat-row"><span>Countries</span><span>India · Nepal · Indonesia</span></div>
-        <div class="badges">
-          <span class="badge">Mountain Soul</span>
-          <span class="badge">Campfire Nomad</span>
-          <span class="badge">Border Crosser</span>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="book" id="book">
-    <div class="wrap book-grid">
-      <div>
-        <h2>Booking should take less time than picking a playlist.</h2>
-        <p>Pick a departure, set your headcount, and you're in. No quote requests, no back-and-forth over email — the price you see is the price you pay.</p>
-        <a href="#" class="btn">Secure my spot</a>
-      </div>
-      <div class="ticket">
-        <div class="dest">Ladakh · 7 days</div>
-        <h4>Beyond the Map</h4>
-        <div class="price">₹24,999</div>
-        <div class="dep">
-          <span class="sel">18 Oct</span>
-          <span>25 Oct</span>
-          <span>01 Nov</span>
-        </div>
-        <button class="btn">Reserve for 2 travellers</button>
-      </div>
-    </div>
-  </section>
+          <!-- Hero Main Title -->
+          <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal leading-none tracking-tight text-cloud max-w-5xl mx-auto">
+            The world is too big to stay in <em class="italic text-terracotta font-serif">one place.</em>
+          </h1>
 
-  <footer>
-    <div class="wrap">
-      <div class="foot-row">
+          <!-- Subtitle Copy -->
+          <p class="max-w-2xl mx-auto text-base sm:text-lg md:text-xl text-sand/80 font-light leading-relaxed">
+            Nomad Musafir Trails matches you with small-group road trips, secret mountain camps, and coastal escapes — with people who’d rather explore than sightsee.
+          </p>
+
+          <!-- Search & Filter Quick Bar -->
+          <div class="max-w-3xl mx-auto glass-panel p-2.5 sm:p-3 rounded-2xl border border-line shadow-2xl flex flex-col sm:flex-row items-center gap-2">
+            <div class="flex-1 flex items-center gap-3 px-3 w-full">
+              <i data-lucide="map-pin" class="w-5 h-5 text-terracotta shrink-0"></i>
+              <input type="text" x-model="searchQuery" @keyup.enter="switchTab('explore')" placeholder="Where do you want to wander? (e.g., Ladakh, Bali, Camping)" class="w-full bg-transparent text-cloud text-sm focus:outline-none placeholder:text-sand/40">
+            </div>
+            
+            <div class="w-full sm:w-auto flex items-center gap-2">
+              <select x-model="selectedCategory" class="bg-paper/80 text-sand text-xs rounded-xl px-3 py-2.5 border border-line focus:outline-none">
+                <option value="All">All Vibe Styles</option>
+                <option value="Adventure">High Altitude</option>
+                <option value="Camping">Campfire & Stars</option>
+                <option value="Beach">Coastal Trails</option>
+                <option value="International">Cross Border</option>
+              </select>
+              <button @click="switchTab('explore')" class="w-full sm:w-auto px-6 py-2.5 bg-terracotta hover:bg-terracotta-hover text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 shrink-0">
+                <span>Explore</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Social Proof Strip -->
+          <div class="pt-4 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs text-sand/70 font-medium">
+            <div class="flex items-center gap-2">
+              <div class="flex -space-x-2">
+                <img class="w-7 h-7 rounded-full border border-obsidian object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100">
+                <img class="w-7 h-7 rounded-full border border-obsidian object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100">
+                <img class="w-7 h-7 rounded-full border border-obsidian object-cover" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100">
+              </div>
+              <span><strong>1,840+</strong> Nomads traveling this month</span>
+            </div>
+            <div class="flex items-center gap-1 text-sun">
+              <i data-lucide="star" class="w-4 h-4 fill-sun"></i>
+              <span class="font-bold text-cloud">4.92 / 5</span>
+              <span class="text-sand/50">(420+ trail reviews)</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- STORY CATEGORIES SECTION -->
+      <section class="py-20 bg-paper/60 border-t border-line">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-widest text-terracotta">Curated Experiences</span>
+              <h2 class="font-serif text-3xl sm:text-5xl font-medium text-cloud mt-1">What kind of story are you looking for?</h2>
+            </div>
+            <p class="text-sand/70 text-sm max-w-md">Filter by the mood of your next escape. We match you to the right trail, fixed departure date, and fellow travelers.</p>
+          </div>
+
+          <!-- Category Chips Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <template x-for="cat in categories" :key="cat.name">
+              <button @click="selectedCategory = cat.name; switchTab('explore')" class="group p-5 rounded-2xl glass-card hover:border-terracotta/50 transition-all text-left flex flex-col justify-between min-h-[140px] relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-terracotta/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                <div class="flex items-center justify-between z-10">
+                  <div class="w-10 h-10 rounded-xl bg-obsidian/60 border border-line flex items-center justify-center text-sun group-hover:text-terracotta transition-colors">
+                    <i :data-lucide="cat.icon" class="w-5 h-5"></i>
+                  </div>
+                  <span class="text-[10px] font-mono uppercase text-sand/40 tracking-wider" x-text="cat.count + ' Trails'"></span>
+                </div>
+                <div class="z-10 mt-4">
+                  <h3 class="font-medium text-base text-cloud group-hover:text-sun transition-colors" x-text="cat.name"></h3>
+                  <p class="text-xs text-sand/60 mt-1 line-clamp-1" x-text="cat.desc"></p>
+                </div>
+              </button>
+            </template>
+          </div>
+        </div>
+      </section>
+
+      <!-- FEATURED TRENDING TRAILS SECTION -->
+      <section class="py-24 bg-obsidian relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div>
+              <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-sun mb-2">
+                <i data-lucide="flame" class="w-4 h-4 fill-sun text-sun"></i>
+                <span>High Demand Departures</span>
+              </div>
+              <h2 class="font-serif text-3xl sm:text-5xl font-medium text-cloud">Trending Trails for 2026</h2>
+            </div>
+            <button @click="switchTab('explore')" class="inline-flex items-center gap-2 text-sm text-sand hover:text-sun font-semibold transition-colors">
+              <span>View All 24 Trails</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Asymmetric Card Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <template x-for="(trail, index) in trendingTrails" :key="trail.id">
+              <div :class="index === 0 ? 'md:col-span-8 min-h-[440px]' : 'md:col-span-4 min-h-[400px]'" class="group relative rounded-2xl overflow-hidden glass-panel border border-line flex flex-col justify-end p-6 sm:p-8 cursor-pointer transition-all duration-300 hover:border-sun/40" @click="openTrailDetails(trail)">
+                
+                <!-- Background Image -->
+                <img :src="trail.image" :alt="trail.title" class="absolute inset-0 w-full h-full object-cover filter brightness-[0.65] group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
+
+                <!-- Top Badges -->
+                <div class="absolute top-5 left-5 right-5 flex items-center justify-between z-10">
+                  <span class="px-3 py-1 rounded-full text-[11px] font-mono tracking-wider bg-obsidian/80 text-sand border border-line" x-text="trail.coordinates"></span>
+                  
+                  <button @click.stop="toggleWishlist(trail)" class="w-9 h-9 rounded-full bg-obsidian/70 backdrop-blur-md border border-line flex items-center justify-center text-cloud hover:text-terracotta transition-colors">
+                    <i data-lucide="bookmark" class="w-4 h-4" :class="isWishlisted(trail.id) ? 'fill-terracotta text-terracotta' : ''"></i>
+                  </button>
+                </div>
+
+                <!-- Bottom Content -->
+                <div class="relative z-10 space-y-3">
+                  <div class="flex items-center gap-2 text-xs font-semibold text-sun">
+                    <span class="px-2 py-0.5 rounded bg-sun/20 border border-sun/30" x-text="trail.duration"></span>
+                    <span>•</span>
+                    <span x-text="trail.type"></span>
+                  </div>
+
+                  <h3 class="font-serif text-2xl sm:text-3xl font-medium text-cloud group-hover:text-sand transition-colors" x-text="trail.title"></h3>
+
+                  <p class="text-xs sm:text-sm text-sand/80 line-clamp-2 font-light" x-text="trail.summary"></p>
+
+                  <div class="pt-2 flex items-center justify-between border-t border-line/60">
+                    <div>
+                      <span class="text-[10px] uppercase tracking-wider text-sand/60 block">Starting from</span>
+                      <span class="text-lg font-bold text-sun" x-text="trail.price"></span>
+                    </div>
+
+                    <!-- Social Proof Going -->
+                    <div class="flex items-center gap-2 text-xs text-sand">
+                      <div class="flex -space-x-1.5">
+                        <template x-for="avatar in trail.nomadsGoingAvatars" :key="avatar">
+                          <img :src="avatar" class="w-6 h-6 rounded-full border border-obsidian object-cover">
+                        </template>
+                      </div>
+                      <span class="font-medium text-xs text-sand" x-text="trail.nomadsCount + ' Nomads going'"></span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
+
+      <!-- EDITORIAL BANNER: TRAVEL WITH YOUR TRIBE -->
+      <section class="py-20 bg-forest relative overflow-hidden text-cloud">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div class="space-y-6">
+            <span class="text-xs font-bold uppercase tracking-widest text-sun">Community First Travel</span>
+            <h2 class="font-serif text-4xl sm:text-6xl font-normal leading-tight">
+              You’re not booking a tour.<br>
+              <em class="italic text-terracotta font-serif">You’re joining a story.</em>
+            </h2>
+            <p class="text-sand/80 text-base sm:text-lg leading-relaxed font-light">
+              Sightseeing is fine. But sharing a midnight campfire in Pangong, riding local trains across Vietnam, or learning to surf in Bali alongside fellow nomads? That’s what stays with you.
+            </p>
+
+            <div class="pt-4 flex flex-wrap gap-4">
+              <button @click="switchTab('community')" class="px-6 py-3 bg-terracotta hover:bg-terracotta-hover text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xl">
+                Match Your Travel Tribe
+              </button>
+              <button @click="switchTab('explore')" class="px-6 py-3 border border-sand/30 hover:border-sand text-sand text-xs font-bold uppercase tracking-wider rounded-xl transition-all">
+                Browse Departures
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Nomad Passport Card Preview -->
+          <div class="glass-panel p-8 rounded-3xl border border-sand/20 shadow-2xl relative">
+            <div class="flex items-start justify-between mb-6">
+              <div>
+                <span class="text-[11px] font-mono tracking-widest text-terracotta uppercase">Nomad Passport</span>
+                <h3 class="font-serif text-2xl font-medium text-cloud mt-0.5" x-text="user.name"></h3>
+                <p class="text-xs text-sun" x-text="user.level"></p>
+              </div>
+              <div class="w-12 h-12 rounded-full bg-terracotta/20 border border-terracotta/40 flex items-center justify-center text-sun text-xl">
+                🧭
+              </div>
+            </div>
+
+            <div class="space-y-3 border-t border-b border-line py-4 my-4 text-xs">
+              <div class="flex justify-between">
+                <span class="text-sand/60">Trails Completed</span>
+                <span class="font-bold text-cloud" x-text="user.trailsCompleted + ' Trails'"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sand/60">Distance Wandered</span>
+                <span class="font-bold text-cloud" x-text="user.distanceKm.toLocaleString() + ' km'"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sand/60">Countries Explored</span>
+                <span class="font-bold text-cloud" x-text="user.countries.join(' · ')"></span>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-1.5 pt-2">
+              <template x-for="badge in user.badges" :key="badge">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-medium bg-terracotta/15 text-terracotta border border-terracotta/30" x-text="badge"></span>
+              </template>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- UPCOMING DEPARTURES STRIP -->
+      <section class="py-20 bg-paper/40 border-t border-line">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="mb-10 flex justify-between items-end">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-widest text-terracotta">Fixed Dates</span>
+              <h2 class="font-serif text-3xl font-medium text-cloud">Next Departure Openings</h2>
+            </div>
+            <button @click="switchTab('explore')" class="text-xs text-sun hover:underline font-semibold">View calendar</button>
+          </div>
+
+          <div class="space-y-3">
+            <template x-for="dep in upcomingDepartures" :key="dep.id">
+              <div class="glass-panel p-4 sm:p-5 rounded-2xl border border-line flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-sun/40 transition-all">
+                <div class="flex items-center gap-4">
+                  <div class="w-14 h-14 rounded-xl bg-obsidian border border-line flex flex-col items-center justify-center text-center shrink-0">
+                    <span class="text-[10px] uppercase font-bold text-terracotta" x-text="dep.month"></span>
+                    <span class="text-lg font-extrabold text-cloud leading-none" x-text="dep.day"></span>
+                  </div>
+                  <div>
+                    <h4 class="font-serif text-xl font-medium text-cloud" x-text="dep.trailTitle"></h4>
+                    <p class="text-xs text-sand/60" x-text="dep.location + ' · ' + dep.duration"></p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-line/40 pt-3 sm:pt-0">
+                  <div>
+                    <span class="text-xs text-terracotta font-semibold block" x-text="dep.spotsLeft + ' spots left'"></span>
+                    <span class="text-xs font-bold text-sun" x-text="dep.price"></span>
+                  </div>
+                  <button @click="openTrailDetailsById(dep.trailId)" class="px-4 py-2 bg-paper hover:bg-terracotta hover:text-white border border-line rounded-lg text-xs font-bold uppercase tracking-wider transition-colors">
+                    Join Group
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOMAD STORIES REVIEWS -->
+      <section class="py-20 bg-obsidian">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center max-w-2xl mx-auto mb-14">
+            <span class="text-xs font-bold uppercase tracking-widest text-sun">Traveler Words</span>
+            <h2 class="font-serif text-3xl sm:text-5xl font-medium text-cloud mt-1">Stories from the Trail</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <template x-for="review in reviews" :key="review.author">
+              <div class="glass-panel p-6 rounded-2xl border border-line space-y-4 flex flex-col justify-between">
+                <p class="text-sm text-sand/90 italic font-light leading-relaxed" x-text="'“' + review.quote + '”'"></p>
+                <div class="flex items-center gap-3 pt-4 border-t border-line/60">
+                  <img :src="review.avatar" class="w-10 h-10 rounded-full object-cover">
+                  <div>
+                    <h5 class="text-xs font-bold text-cloud" x-text="review.author"></h5>
+                    <span class="text-[11px] text-terracotta block" x-text="review.trail"></span>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ==================== VIEW 2: EXPLORE & ILLUSTRATED MAP ==================== -->
+    <div x-show="activeTab === 'explore'" x-transition:enter="transition opacity duration-300" x-cloak class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+      
+      <!-- Explorer Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <a class="brandmark" href="#top" style="color:var(--cloud);">
-            <svg viewBox="0 0 24 24" style="width:20px;height:20px;"><path d="M12 2 L20 20 L12 16 L4 20 Z" fill="#E7A83E"/></svg>
-            Nomad Musafir
-          </a>
-          <p>A travel discovery and booking platform for people who'd rather wander than sightsee.</p>
+          <span class="text-xs font-bold uppercase tracking-widest text-terracotta">Interactive Discovery</span>
+          <h1 class="font-serif text-4xl sm:text-6xl font-medium text-cloud">Illustrated Trail Map</h1>
+          <p class="text-sand/70 text-sm mt-2 max-w-xl">Hover over hotspot coordinates on our stylized map to inspect regional trails or select a category below.</p>
         </div>
-        <div class="foot-links">
-          <div>
-            <h5>Explore</h5>
-            <a href="#trails">Trails</a>
-            <a href="#itinerary">Itineraries</a>
-            <a href="#tribe">Community</a>
+
+        <!-- Filter Controls -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button @click="selectedRegion = 'All'" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all" :class="selectedRegion === 'All' ? 'bg-terracotta text-white' : 'bg-paper text-sand/70 hover:text-cloud border border-line'">All Regions</button>
+          <button @click="selectedRegion = 'Himalayas'" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all" :class="selectedRegion === 'Himalayas' ? 'bg-terracotta text-white' : 'bg-paper text-sand/70 hover:text-cloud border border-line'">Himalayas</button>
+          <button @click="selectedRegion = 'Southeast Asia'" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all" :class="selectedRegion === 'Southeast Asia' ? 'bg-terracotta text-white' : 'bg-paper text-sand/70 hover:text-cloud border border-line'">SE Asia</button>
+          <button @click="selectedRegion = 'Desert & Coast'" class="px-3.5 py-1.5 rounded-full text-xs font-medium transition-all" :class="selectedRegion === 'Desert & Coast' ? 'bg-terracotta text-white' : 'bg-paper text-sand/70 hover:text-cloud border border-line'">Desert & Coast</button>
+        </div>
+      </div>
+
+      <!-- STYLIZED ILLUSTRATED MAP CONTAINER -->
+      <div class="relative w-full h-[420px] sm:h-[480px] rounded-3xl glass-panel border border-line overflow-hidden p-6 flex items-center justify-center">
+        <!-- Map Background Graphic -->
+        <div class="absolute inset-0 bg-[radial-gradient(#C75B3C_1px,transparent_1px)] [background-size:24px_24px] opacity-20"></div>
+
+        <!-- Map Contours & Landmass Illustration -->
+        <svg class="absolute inset-0 w-full h-full text-sand/15 pointer-events-none" viewBox="0 0 1000 500">
+          <!-- Stylized Asia / India / SE Asia simplified contours -->
+          <path d="M 150 180 Q 250 120 400 160 T 550 200 T 700 280 T 850 350 L 900 450 L 100 450 Z" fill="currentColor" />
+          <path d="M 320 220 C 360 260, 420 380, 460 400 C 480 380, 520 300, 540 260 Z" fill="currentColor" opacity="0.6" />
+        </svg>
+
+        <!-- Interactive Hotspots on Map -->
+        <template x-for="spot in mapHotspots" :key="spot.id">
+          <div class="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer" :style="'left: ' + spot.x + '%; top: ' + spot.y + '%;'" @click="openTrailDetailsById(spot.trailId)">
+            
+            <!-- Pulse Ring -->
+            <span class="absolute -inset-2 rounded-full bg-terracotta/40 animate-ping"></span>
+            
+            <!-- Pin Button -->
+            <div class="relative w-8 h-8 rounded-full bg-obsidian border-2 border-sun flex items-center justify-center text-sun shadow-xl group-hover:scale-125 transition-transform">
+              <i data-lucide="map-pin" class="w-4 h-4 text-sun"></i>
+            </div>
+
+            <!-- Hover Tooltip Popup -->
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 hidden group-hover:flex flex-col w-52 p-3 glass-panel rounded-xl border border-sun/40 shadow-2xl z-30 pointer-events-none">
+              <span class="text-[10px] font-mono text-sun uppercase" x-text="spot.coords"></span>
+              <h5 class="font-serif text-base font-bold text-cloud" x-text="spot.title"></h5>
+              <span class="text-[11px] text-sand/70" x-text="spot.price"></span>
+            </div>
           </div>
-          <div>
-            <h5>Company</h5>
-            <a href="#">About</a>
-            <a href="#">Safety</a>
-            <a href="#">Careers</a>
+        </template>
+
+        <!-- Compass Rose Graphic -->
+        <div class="absolute top-6 right-6 w-16 h-16 rounded-full border border-sand/20 flex items-center justify-center text-sand/40">
+          <i data-lucide="compass" class="w-10 h-10"></i>
+        </div>
+        
+        <div class="absolute bottom-4 left-6 text-xs text-sand/50 font-mono">
+          <span>LAT/LONG INTERACTIVE GRID · NOMAD MUSAFIR RADAR</span>
+        </div>
+      </div>
+
+      <!-- TRAIL CARDS GRID -->
+      <div class="space-y-6">
+        <div class="flex items-center justify-between">
+          <h3 class="font-serif text-2xl text-cloud">Available Destinations (<span x-text="filteredTrails.length"></span>)</h3>
+          <div class="relative w-64">
+            <input type="text" x-model="searchQuery" placeholder="Filter trails..." class="w-full bg-paper text-cloud text-xs rounded-xl px-3 py-2 pl-8 border border-line focus:outline-none">
+            <i data-lucide="search" class="w-4 h-4 text-sand/40 absolute left-2.5 top-2.5"></i>
           </div>
-          <div>
-            <h5>Support</h5>
-            <a href="#">Help centre</a>
-            <a href="#">Cancellations</a>
-            <a href="#">Contact</a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <template x-for="trail in filteredTrails" :key="trail.id">
+            <div class="glass-panel rounded-2xl border border-line overflow-hidden group hover:border-sun/40 transition-all flex flex-col justify-between cursor-pointer" @click="openTrailDetails(trail)">
+              <div class="relative h-52 overflow-hidden">
+                <img :src="trail.image" :alt="trail.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-[0.8]">
+                <div class="absolute top-3 left-3 bg-obsidian/80 px-2.5 py-1 rounded-full text-[10px] font-mono text-sand border border-line" x-text="trail.region"></div>
+                <button @click.stop="toggleWishlist(trail)" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-obsidian/70 border border-line flex items-center justify-center text-cloud hover:text-terracotta">
+                  <i data-lucide="bookmark" class="w-4 h-4" :class="isWishlisted(trail.id) ? 'fill-terracotta text-terracotta' : ''"></i>
+                </button>
+              </div>
+
+              <div class="p-5 space-y-3 flex-grow flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between text-xs text-sun font-semibold mb-1">
+                    <span x-text="trail.duration"></span>
+                    <span x-text="trail.type"></span>
+                  </div>
+                  <h4 class="font-serif text-xl font-medium text-cloud group-hover:text-sun transition-colors" x-text="trail.title"></h4>
+                  <p class="text-xs text-sand/70 mt-1 line-clamp-2" x-text="trail.summary"></p>
+                </div>
+
+                <div class="pt-3 border-t border-line flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] uppercase text-sand/50 block">From</span>
+                    <span class="text-base font-bold text-sun" x-text="trail.price"></span>
+                  </div>
+                  <button class="px-3 py-1.5 bg-terracotta/20 hover:bg-terracotta text-terracotta hover:text-white rounded-lg text-xs font-bold uppercase transition-colors">
+                    View Trail
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== VIEW 3: COMMUNITY (FIND YOUR TRIBE) ==================== -->
+    <div x-show="activeTab === 'community'" x-transition:enter="transition opacity duration-300" x-cloak class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+      
+      <!-- Community Header -->
+      <div class="text-center max-w-3xl mx-auto space-y-4">
+        <span class="text-xs font-bold uppercase tracking-widest text-sun">Nomad Matching Engine</span>
+        <h1 class="font-serif text-4xl sm:text-6xl font-medium text-cloud">Travel With Your Tribe</h1>
+        <p class="text-sand/80 text-sm sm:text-base font-light">
+          Connect with registered solo travelers and small groups already booked on upcoming departures. See their travel vibes, photography interests, and adventure levels before you join.
+        </p>
+      </div>
+
+      <!-- Nomad Filter Bar -->
+      <div class="glass-panel p-4 rounded-2xl border border-line flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-sand/70">Filter Vibe:</span>
+          <select x-model="communityFilterInterest" class="bg-paper text-cloud text-xs rounded-xl px-3 py-2 border border-line focus:outline-none">
+            <option value="All">All Interests</option>
+            <option value="Photography">Photography</option>
+            <option value="Camping">Camping</option>
+            <option value="Hiking">Hiking</option>
+            <option value="Foodie">Foodie & Culture</option>
+          </select>
+        </div>
+
+        <span class="text-xs text-terracotta font-semibold" x-text="filteredTribes.length + ' Active Nomads Looking for Group'"></span>
+      </div>
+
+      <!-- Nomad Profiles Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <template x-for="nomad in filteredTribes" :key="nomad.name">
+          <div class="glass-panel p-6 rounded-2xl border border-line flex flex-col justify-between space-y-4 hover:border-sun/40 transition-all">
+            <div class="flex items-center gap-4">
+              <img :src="nomad.avatar" :alt="nomad.name" class="w-14 h-14 rounded-full object-cover border-2 border-terracotta/40">
+              <div>
+                <h4 class="font-serif text-xl font-medium text-cloud" x-text="nomad.name"></h4>
+                <span class="text-xs text-sun" x-text="nomad.age + ' yrs · ' + nomad.location"></span>
+                <span class="block text-[11px] text-sand/60 mt-0.5" x-text="'Heading to: ' + nomad.targetDestination"></span>
+              </div>
+            </div>
+
+            <p class="text-xs text-sand/80 italic" x-text="'“' + nomad.bio + '”'"></p>
+
+            <div class="flex flex-wrap gap-1.5">
+              <template x-for="tag in nomad.interests" :key="tag">
+                <span class="px-2 py-0.5 rounded text-[10px] bg-paper text-sand border border-line" x-text="tag"></span>
+              </template>
+            </div>
+
+            <div class="pt-3 border-t border-line flex items-center justify-between">
+              <span class="text-[11px] text-sand/60" x-text="nomad.trailsCompleted + ' trails completed'"></span>
+              <button @click="connectWithNomad(nomad)" class="px-3 py-1.5 bg-sun/20 text-sun hover:bg-sun hover:text-obsidian text-xs font-bold rounded-lg transition-colors">
+                Connect Vibe
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+
+    </div>
+
+    <!-- ==================== VIEW 4: NOMAD PASSPORT & PROFILE ==================== -->
+    <div x-show="activeTab === 'passport'" x-transition:enter="transition opacity duration-300" x-cloak class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+      
+      <!-- Passport Header Card -->
+      <div class="glass-panel p-8 rounded-3xl border border-sun/30 relative overflow-hidden space-y-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
+          <div class="flex items-center gap-5">
+            <img :src="user.avatar" :alt="user.name" class="w-20 h-20 rounded-full object-cover border-2 border-sun shadow-xl">
+            <div>
+              <span class="text-xs font-mono tracking-widest text-terracotta uppercase">Nomad Passport #NMT-9042</span>
+              <h1 class="font-serif text-3xl sm:text-4xl font-medium text-cloud" x-text="user.name"></h1>
+              <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-sun/20 text-sun border border-sun/30 mt-1" x-text="user.level"></span>
+            </div>
+          </div>
+
+          <button @click="openAuthModal = true" class="px-4 py-2 bg-paper border border-line hover:border-terracotta text-xs font-bold uppercase rounded-xl transition-colors">
+            Edit Profile
+          </button>
+        </div>
+
+        <!-- Stats Counter Row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-line text-center">
+          <div class="p-4 bg-paper/60 rounded-xl border border-line">
+            <span class="block text-2xl font-serif font-bold text-sun" x-text="user.trailsCompleted"></span>
+            <span class="text-[11px] text-sand/60 uppercase">Trails Completed</span>
+          </div>
+          <div class="p-4 bg-paper/60 rounded-xl border border-line">
+            <span class="block text-2xl font-serif font-bold text-terracotta" x-text="user.distanceKm.toLocaleString() + ' km'"></span>
+            <span class="text-[11px] text-sand/60 uppercase">Distance Covered</span>
+          </div>
+          <div class="p-4 bg-paper/60 rounded-xl border border-line">
+            <span class="block text-2xl font-serif font-bold text-cloud" x-text="user.countries.length"></span>
+            <span class="text-[11px] text-sand/60 uppercase">Countries</span>
+          </div>
+          <div class="p-4 bg-paper/60 rounded-xl border border-line">
+            <span class="block text-2xl font-serif font-bold text-sun" x-text="user.badges.length"></span>
+            <span class="text-[11px] text-sand/60 uppercase">Badges Unlocked</span>
+          </div>
+        </div>
+
+        <!-- Earned Badges -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-sand/70 mb-3">Earned Trail Badges</h4>
+          <div class="flex flex-wrap gap-2">
+            <template x-for="badge in user.badges" :key="badge">
+              <span class="px-3 py-1.5 rounded-xl text-xs font-medium bg-terracotta/20 text-terracotta border border-terracotta/40 flex items-center gap-1.5">
+                <i data-lucide="award" class="w-3.5 h-3.5"></i>
+                <span x-text="badge"></span>
+              </span>
+            </template>
           </div>
         </div>
       </div>
-      <div class="foot-bottom">
-        <span>© 2026 Nomad Musafir Trails</span>
-        <span>Explore. Wander. Connect.</span>
+
+      <!-- Booked Trips List -->
+      <div class="space-y-4">
+        <h3 class="font-serif text-2xl text-cloud">My Booked Departures (<span x-text="myBookings.length"></span>)</h3>
+        
+        <template x-if="myBookings.length === 0">
+          <div class="glass-panel p-8 text-center rounded-2xl border border-line text-sand/60 text-sm">
+            You have no upcoming booked trails yet. Explore our open departures!
+          </div>
+        </template>
+
+        <template x-for="booking in myBookings" :key="booking.ref">
+          <div class="glass-panel p-5 rounded-2xl border border-line flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span class="text-[10px] font-mono text-terracotta" x-text="'REF: ' + booking.ref"></span>
+              <h4 class="font-serif text-xl text-cloud" x-text="booking.trailTitle"></h4>
+              <p class="text-xs text-sand/70" x-text="'Date: ' + booking.date + ' · ' + booking.travelers + ' Nomad(s)'"></p>
+            </div>
+            <div class="text-right">
+              <span class="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 text-xs rounded-full font-bold">Confirmed</span>
+              <span class="block text-sm font-bold text-sun mt-1" x-text="booking.totalPrice"></span>
+            </div>
+          </div>
+        </template>
       </div>
+
+    </div>
+
+  </main>
+
+  <!-- ==================== MODAL 1: TRAIL DETAIL & ITINERARY ==================== -->
+  <div x-show="showTrailModal" class="fixed inset-0 z-50 overflow-y-auto glass-panel backdrop-blur-2xl bg-obsidian/90 flex items-center justify-center p-4 sm:p-6" x-cloak>
+    <div @click.away="showTrailModal = false" class="relative w-full max-w-4xl bg-paper border border-line rounded-3xl overflow-hidden shadow-2xl space-y-0 my-8">
+      
+      <button @click="showTrailModal = false" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-obsidian/80 border border-line flex items-center justify-center text-cloud hover:text-terracotta">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <template x-if="selectedTrail">
+        <div>
+          <!-- Hero Banner Image -->
+          <div class="relative h-72 sm:h-80 w-full">
+            <img :src="selectedTrail.image" class="w-full h-full object-cover filter brightness-75">
+            <div class="absolute inset-0 bg-gradient-to-t from-paper via-transparent to-transparent"></div>
+            
+            <div class="absolute bottom-6 left-6 right-6">
+              <span class="px-3 py-1 rounded-full text-xs font-mono bg-obsidian/80 text-sun border border-line" x-text="selectedTrail.coordinates"></span>
+              <h2 class="font-serif text-3xl sm:text-5xl font-bold text-cloud mt-2" x-text="selectedTrail.title"></h2>
+              <p class="text-xs sm:text-sm text-sand/80 font-light" x-text="selectedTrail.region + ' · ' + selectedTrail.duration"></p>
+            </div>
+          </div>
+
+          <div class="p-6 sm:p-8 space-y-8">
+            <!-- Trail Overview & Quick Stats -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-obsidian rounded-2xl border border-line text-center text-xs">
+              <div>
+                <span class="text-sand/50 block">Difficulty</span>
+                <span class="font-bold text-sun" x-text="selectedTrail.difficulty"></span>
+              </div>
+              <div>
+                <span class="text-sand/50 block">Group Size</span>
+                <span class="font-bold text-cloud" x-text="selectedTrail.groupSize"></span>
+              </div>
+              <div>
+                <span class="text-sand/50 block">Stay Type</span>
+                <span class="font-bold text-cloud" x-text="selectedTrail.stay"></span>
+              </div>
+              <div>
+                <span class="text-sand/50 block">Starting Price</span>
+                <span class="font-bold text-terracotta" x-text="selectedTrail.price"></span>
+              </div>
+            </div>
+
+            <!-- Detailed Summary -->
+            <div class="space-y-2">
+              <h4 class="font-serif text-xl text-cloud">The Experience</h4>
+              <p class="text-sm text-sand/80 leading-relaxed font-light" x-text="selectedTrail.fullDescription"></p>
+            </div>
+
+            <!-- Day-by-Day Itinerary -->
+            <div class="space-y-4">
+              <h4 class="font-serif text-xl text-cloud">Day-by-Day Itinerary</h4>
+              <div class="space-y-3">
+                <template x-for="(day, idx) in selectedTrail.itinerary" :key="idx">
+                  <div class="p-4 bg-obsidian/60 rounded-xl border border-line space-y-1">
+                    <div class="flex items-center gap-2 text-xs font-bold text-sun">
+                      <span x-text="'DAY 0' + (idx + 1)"></span>
+                      <span>—</span>
+                      <span x-text="day.title"></span>
+                    </div>
+                    <p class="text-xs text-sand/70 font-light" x-text="day.desc"></p>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Booking Sticky Footer Bar in Modal -->
+            <div class="pt-6 border-t border-line flex items-center justify-between">
+              <div>
+                <span class="text-xs text-sand/60 block">Price per Nomad</span>
+                <span class="text-2xl font-bold text-sun" x-text="selectedTrail.price"></span>
+              </div>
+              <button @click="showTrailModal = false; startBookingFlow(selectedTrail)" class="px-6 py-3 bg-terracotta hover:bg-terracotta-hover text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xl">
+                Secure My Spot
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: MULTI-STEP BOOKING FLOW ==================== -->
+  <div x-show="showBookingModal" class="fixed inset-0 z-50 overflow-y-auto glass-panel backdrop-blur-2xl bg-obsidian/90 flex items-center justify-center p-4" x-cloak>
+    <div class="relative w-full max-w-xl bg-paper border border-line rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+      
+      <button @click="showBookingModal = false" class="absolute top-4 right-4 text-sand/60 hover:text-cloud">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="space-y-1">
+        <span class="text-[10px] font-mono text-terracotta uppercase" x-text="'STEP ' + bookingStep + ' OF 3'"></span>
+        <h3 class="font-serif text-2xl text-cloud" x-text="bookingTrail ? bookingTrail.title : 'Reserve Trail'"></h3>
+      </div>
+
+      <!-- Step 1: Select Departure Date & Nomads Count -->
+      <div x-show="bookingStep === 1" class="space-y-5">
+        <div>
+          <label class="block text-xs font-bold text-sand/80 uppercase mb-2">Select Departure Date</label>
+          <div class="grid grid-cols-3 gap-2">
+            <template x-for="date in availableDates" :key="date">
+              <button @click="bookingDate = date" class="py-2.5 px-3 rounded-xl text-xs font-semibold border transition-all text-center" :class="bookingDate === date ? 'bg-terracotta text-white border-terracotta' : 'bg-obsidian text-sand/70 border-line hover:border-sun/40'" x-text="date"></button>
+            </template>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-sand/80 uppercase mb-2">Number of Travelers</label>
+          <div class="flex items-center gap-4 bg-obsidian p-3 rounded-xl border border-line">
+            <button @click="bookingTravelers = Math.max(1, bookingTravelers - 1)" class="w-8 h-8 rounded-lg bg-paper flex items-center justify-center text-cloud font-bold">-</button>
+            <span class="text-sm font-bold text-sun flex-1 text-center" x-text="bookingTravelers + ' Nomad(s)'"></span>
+            <button @click="bookingTravelers = bookingTravelers + 1" class="w-8 h-8 rounded-lg bg-paper flex items-center justify-center text-cloud font-bold">+</button>
+          </div>
+        </div>
+
+        <button @click="bookingStep = 2" class="w-full py-3 bg-terracotta text-white font-bold text-xs uppercase tracking-wider rounded-xl">Next: Contact Info</button>
+      </div>
+
+      <!-- Step 2: Contact Info -->
+      <div x-show="bookingStep === 2" class="space-y-4">
+        <div>
+          <label class="block text-xs text-sand/70 mb-1">Lead Nomad Name</label>
+          <input type="text" x-model="user.name" class="w-full bg-obsidian border border-line rounded-xl px-3 py-2 text-sm text-cloud focus:outline-none focus:border-terracotta">
+        </div>
+        <div>
+          <label class="block text-xs text-sand/70 mb-1">Email Address</label>
+          <input type="email" x-model="user.email" class="w-full bg-obsidian border border-line rounded-xl px-3 py-2 text-sm text-cloud focus:outline-none focus:border-terracotta">
+        </div>
+        <div>
+          <label class="block text-xs text-sand/70 mb-1">Special Requests / Dietary</label>
+          <input type="text" x-model="bookingNotes" placeholder="e.g., Vegetarian, Need rental tent" class="w-full bg-obsidian border border-line rounded-xl px-3 py-2 text-sm text-cloud focus:outline-none focus:border-terracotta">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button @click="bookingStep = 1" class="w-1/3 py-3 border border-line text-sand text-xs font-bold uppercase rounded-xl">Back</button>
+          <button @click="bookingStep = 3" class="w-2/3 py-3 bg-terracotta text-white font-bold text-xs uppercase tracking-wider rounded-xl">Review & Reserve</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Review & Complete -->
+      <div x-show="bookingStep === 3" class="space-y-5">
+        <div class="p-4 bg-obsidian rounded-2xl border border-line space-y-2 text-xs">
+          <div class="flex justify-between text-sand/70">
+            <span>Trail</span>
+            <span class="text-cloud font-bold" x-text="bookingTrail ? bookingTrail.title : ''"></span>
+          </div>
+          <div class="flex justify-between text-sand/70">
+            <span>Departure Date</span>
+            <span class="text-cloud font-bold" x-text="bookingDate"></span>
+          </div>
+          <div class="flex justify-between text-sand/70">
+            <span>Travelers</span>
+            <span class="text-cloud font-bold" x-text="bookingTravelers + ' Nomad(s)'"></span>
+          </div>
+          <div class="pt-2 border-t border-line flex justify-between text-sm font-bold">
+            <span class="text-sand">Total Deposit Due</span>
+            <span class="text-sun" x-text="computedTotalBookingPrice"></span>
+          </div>
+        </div>
+
+        <button @click="confirmBooking()" class="w-full py-3.5 bg-sun text-obsidian font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-xl hover:bg-yellow-400 transition-colors">
+          Confirm & Welcome to Trail
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SEARCH OVERLAY MODAL -->
+  <div x-show="openSearchModal" class="fixed inset-0 z-50 glass-panel backdrop-blur-2xl bg-obsidian/95 p-6 flex flex-col justify-start pt-24" x-cloak>
+    <div class="max-w-2xl mx-auto w-full space-y-6">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif text-2xl text-cloud">Search Musafir Trails</h3>
+        <button @click="openSearchModal = false" class="text-sand/60 hover:text-cloud"><i data-lucide="x" class="w-6 h-6"></i></button>
+      </div>
+      <input type="text" x-model="searchQuery" placeholder="Search by destination, activity, or region..." class="w-full bg-paper border border-line rounded-2xl p-4 text-base text-cloud focus:outline-none focus:border-terracotta">
+      
+      <div class="space-y-2">
+        <template x-for="trail in filteredTrails" :key="trail.id">
+          <div @click="openTrailDetails(trail); openSearchModal = false" class="p-3 bg-paper/60 hover:bg-paper rounded-xl border border-line flex justify-between items-center cursor-pointer">
+            <span class="text-sm font-medium text-cloud" x-text="trail.title"></span>
+            <span class="text-xs text-sun" x-text="trail.price"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div x-show="openAuthModal" class="fixed inset-0 z-50 glass-panel backdrop-blur-2xl bg-obsidian/90 flex items-center justify-center p-4" x-cloak>
+    <div class="bg-paper border border-line rounded-3xl p-6 sm:p-8 max-w-sm w-full space-y-5 text-center relative">
+      <button @click="openAuthModal = false" class="absolute top-4 right-4 text-sand/60 hover:text-cloud"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <i data-lucide="compass" class="w-10 h-10 text-sun mx-auto"></i>
+      <h3 class="font-serif text-2xl text-cloud">Nomad Musafir Account</h3>
+      <p class="text-xs text-sand/70">Sign in to sync your passport badges, active bookings, and saved trail wishlists.</p>
+      
+      <div class="space-y-3">
+        <input type="email" placeholder="Nomad Email" x-model="user.email" class="w-full bg-obsidian border border-line rounded-xl p-3 text-xs text-cloud focus:outline-none">
+        <input type="password" value="••••••••" class="w-full bg-obsidian border border-line rounded-xl p-3 text-xs text-cloud focus:outline-none">
+        <button @click="isLoggedIn = true; openAuthModal = false; triggerToast('Welcome back, Nomad!')" class="w-full py-3 bg-terracotta text-white text-xs font-bold uppercase rounded-xl">Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-obsidian border-t border-line py-12 mt-20 text-xs text-sand/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between gap-8">
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="navigation" class="w-4 h-4 text-sun"></i>
+          <span class="font-serif text-lg font-bold text-cloud">Nomad Musafir Trails</span>
+        </div>
+        <p class="max-w-xs text-sand/50">Spontaneous travel, local exploration, and community trails for the modern wanderer.</p>
+      </div>
+
+      <div class="flex gap-12">
+        <div class="space-y-2">
+          <h5 class="text-cloud font-bold uppercase text-[10px] tracking-wider">Explore</h5>
+          <button @click="switchTab('explore')" class="block hover:text-sun">Himalayas</button>
+          <button @click="switchTab('explore')" class="block hover:text-sun">Bali & SE Asia</button>
+          <button @click="switchTab('explore')" class="block hover:text-sun">Desert Camps</button>
+        </div>
+        <div class="space-y-2">
+          <h5 class="text-cloud font-bold uppercase text-[10px] tracking-wider">Community</h5>
+          <button @click="switchTab('community')" class="block hover:text-sun">Find Tribe</button>
+          <button @click="switchTab('passport')" class="block hover:text-sun">Nomad Passport</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-line/40 text-center sm:text-left flex flex-col sm:flex-row justify-between gap-2">
+      <span>© 2026 Nomad Musafir Trails. All rights reserved.</span>
+      <span>Designed for spontaneous nomads worldwide.</span>
     </div>
   </footer>
 
+  <!-- APPLICATION LOGIC & MOCK DATA SCRIPT -->
+  <script>
+    function nomadApp() {
+      return {
+        activeTab: 'home',
+        scrolled: false,
+        mobileMenuOpen: false,
+        searchQuery: '',
+        selectedCategory: 'All',
+        selectedRegion: 'All',
+        communityFilterInterest: 'All',
+        
+        // Modals state
+        showTrailModal: false,
+        showBookingModal: false,
+        openSearchModal: false,
+        openAuthModal: false,
+        openWishlistDrawer: false,
+        
+        selectedTrail: null,
+        bookingTrail: null,
+        bookingStep: 1,
+        bookingDate: '18 Oct 2026',
+        bookingTravelers: 2,
+        bookingNotes: '',
+        
+        // Wishlist IDs
+        wishlist: ['ladakh', 'bali'],
+
+        // User profile
+        isLoggedIn: true,
+        user: {
+          name: 'Rohan Sharma',
+          email: 'rohan@nomadmusafir.com',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+          level: 'Wanderer · Level 3',
+          trailsCompleted: 6,
+          distanceKm: 9420,
+          countries: ['India', 'Nepal', 'Indonesia', 'Vietnam'],
+          badges: ['Mountain Soul', 'Campfire Nomad', 'Border Crosser', 'High Altitude', 'Sunset Chaser']
+        },
+
+        // Toast message
+        showToast: false,
+        toastMessage: '',
+        triggerToast(msg) {
+          this.toastMessage = msg;
+          this.showToast = true;
+          setTimeout(() => { this.showToast = false; }, 3500);
+        },
+
+        // Navigation tab handler
+        switchTab(tab) {
+          this.activeTab = tab;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        toggleWishlist(trail) {
+          const idx = this.wishlist.indexOf(trail.id);
+          if (idx > -1) {
+            this.wishlist.splice(idx, 1);
+            this.triggerToast(`Removed ${trail.title} from Wishlist`);
+          } else {
+            this.wishlist.push(trail.id);
+            this.triggerToast(`Saved ${trail.title} to Wishlist!`);
+          }
+        },
+
+        isWishlisted(id) {
+          return this.wishlist.includes(id);
+        },
+
+        openTrailDetails(trail) {
+          this.selectedTrail = trail;
+          this.showTrailModal = true;
+        },
+
+        openTrailDetailsById(id) {
+          const found = this.allTrails.find(t => t.id === id);
+          if (found) {
+            this.openTrailDetails(found);
+          }
+        },
+
+        startBookingFlow(trail) {
+          this.bookingTrail = trail;
+          this.bookingStep = 1;
+          this.showBookingModal = true;
+        },
+
+        confirmBooking() {
+          const ref = 'NMT-' + Math.floor(10000 + Math.random() * 90000);
+          this.myBookings.unshift({
+            ref: ref,
+            trailTitle: this.bookingTrail.title,
+            date: this.bookingDate,
+            travelers: this.bookingTravelers,
+            totalPrice: this.computedTotalBookingPrice
+          });
+          this.showBookingModal = false;
+          this.triggerToast(`Trail Confirmed! Booking Ref: ${ref}`);
+          this.switchTab('passport');
+        },
+
+        connectWithNomad(nomad) {
+          this.triggerToast(`Vibe request sent to ${nomad.name}!`);
+        },
+
+        get computedTotalBookingPrice() {
+          if (!this.bookingTrail) return '₹0';
+          const numPrice = parseInt(this.bookingTrail.price.replace(/[^0-9]/g, '')) || 24999;
+          return '₹' + (numPrice * this.bookingTravelers).toLocaleString();
+        },
+
+        get availableDates() {
+          return ['18 Oct 2026', '25 Oct 2026', '02 Nov 2026'];
+        },
+
+        // Mock Categories
+        categories: [
+          { name: 'Adventure', icon: 'mountain', count: 8, desc: 'High altitude passes & treks' },
+          { name: 'Camping', icon: 'tent', count: 6, desc: 'Campfires under starlit skies' },
+          { name: 'Beach', icon: 'palmtree', count: 5, desc: 'Coastal surf & island vibes' },
+          { name: 'International', icon: 'globe', count: 5, desc: 'Cross-border group journeys' }
+        ],
+
+        // Mock Map Hotspots
+        mapHotspots: [
+          { id: 'spot1', trailId: 'ladakh', x: 38, y: 28, coords: '34.1526° N, 77.5771° E', title: 'Ladakh: Beyond the Map', price: '₹24,999' },
+          { id: 'spot2', trailId: 'bali', x: 82, y: 72, coords: '8.4095° S, 115.1889° E', title: 'Bali Nomad Tribe', price: '₹31,500' },
+          { id: 'spot3', trailId: 'nepal', x: 48, y: 34, coords: '28.3949° N, 84.1240° E', title: 'Nepal Annapurna Trail', price: '₹38,200' },
+          { id: 'spot4', trailId: 'vietnam', x: 74, y: 52, coords: '16.0544° N, 108.2022° E', title: 'Vietnam North-to-South Express', price: '₹42,000' }
+        ],
+
+        // Mock Upcoming Departures
+        upcomingDepartures: [
+          { id: 'dep1', trailId: 'ladakh', month: 'OCT', day: '18', trailTitle: 'Ladakh: Beyond the Map', location: 'Leh & Nubra Valley', duration: '7 Days', spotsLeft: 3, price: '₹24,999' },
+          { id: 'dep2', trailId: 'bali', month: 'OCT', day: '25', trailTitle: 'Bali Nomad Island Escape', location: 'Ubud & Canggu', duration: '6 Days', spotsLeft: 5, price: '₹31,500' },
+          { id: 'dep3', trailId: 'nepal', month: 'NOV', day: '02', trailTitle: 'Annapurna Circuit Trek', location: 'Pokhara & Basecamp', duration: '9 Days', spotsLeft: 2, price: '₹38,200' }
+        ],
+
+        // Reviews
+        reviews: [
+          { author: 'Aarav Patel', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100', trail: 'Ladakh Trail', quote: 'Joined as a solo traveler, came back with 12 lifelong friends. Swimming in Pangong Lake at sunrise was unforgettable.' },
+          { author: 'Meera Sengupta', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100', trail: 'Bali Tribe', quote: 'The captain knew secret cliffside cafes and hidden waterfalls far away from tourist traps. 10/10 experience!' },
+          { author: 'Kabir Mehta', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100', trail: 'Nepal Footsteps', quote: 'Smooth booking, incredible local host, and an insanely fun campfire group vibe. Booking my second trip already.' }
+        ],
+
+        // User Bookings
+        myBookings: [
+          { ref: 'NMT-84920', trailTitle: 'Ladakh: Beyond the Map', date: '18 Oct 2026', travelers: 2, totalPrice: '₹49,998' }
+        ],
+
+        // All Mock Trails
+        allTrails: [
+          {
+            id: 'ladakh',
+            title: 'Ladakh: Beyond the Map',
+            coordinates: '34.1526° N / 77.5771° E',
+            region: 'Himalayas',
+            category: 'Adventure',
+            duration: '7 Days / 6 Nights',
+            price: '₹24,999',
+            difficulty: 'Moderate-High',
+            groupSize: '12-16 Nomads',
+            stay: 'Boutique Camps & Homestays',
+            type: 'Group Trail',
+            image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&q=80&w=1000',
+            summary: 'Cross Khardung La pass, camp beside blue Pangong Lake under starlit skies, and share hot chai in remote Buddhist monasteries.',
+            fullDescription: 'Experience the rugged high-altitude landscapes of Trans-Himalayas with a group of passionate travelers. We balance slow acclimatization with high-energy dune rides in Nubra Valley and night stargazing sessions.',
+            nomadsCount: 34,
+            nomadsGoingAvatars: [
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100',
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100'
+            ],
+            itinerary: [
+              { title: 'Leh Arrival & Acclimatization', desc: 'Settle into Leh, easy evening walk in Leh bazaar, group chai session.' },
+              { title: 'Khardung La to Nubra Valley', desc: 'Drive through world high pass, double-humped camel ride in Hunder dunes.' },
+              { title: 'Pangong Tso Lakeside Night', desc: 'Camp by the crystal blue lake, campfire storytelling & stargazing.' }
+            ]
+          },
+          {
+            id: 'bali',
+            title: 'Bali Nomad Tribe',
+            coordinates: '8.4095° S / 115.1889° E',
+            region: 'Southeast Asia',
+            category: 'Beach',
+            duration: '6 Days / 5 Nights',
+            price: '₹31,500',
+            difficulty: 'Easy-Relaxed',
+            groupSize: '10-14 Nomads',
+            stay: 'Eco-Villas with Pool',
+            type: 'Island & Surf',
+            image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&q=80&w=1000',
+            summary: 'Surf lessons in Canggu, sunset temple walks in Uluwatu, and jungle waterfall treks in Ubud with remote workers & nomads.',
+            fullDescription: 'Discover the island of gods beyond the clichés. Stay in private eco-villas with fellow nomads, co-work at scenic cafes, and catch epic waves.',
+            nomadsCount: 27,
+            nomadsGoingAvatars: [
+              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100'
+            ],
+            itinerary: [
+              { title: 'Ubud Jungle Welcome', desc: 'Arrival, traditional Balinese feast, poolside orientation.' },
+              { title: 'Secret Waterfalls & Rice Terraces', desc: 'Early morning trek through Tegallalang and hidden natural pools.' },
+              { title: 'Canggu Surf & Sunset Party', desc: 'Catch waves with local surf instructors, beachside bonfire.' }
+            ]
+          },
+          {
+            id: 'nepal',
+            title: 'Nepal: Annapurna Footsteps',
+            coordinates: '28.3949° N / 84.1240° E',
+            region: 'Himalayas',
+            category: 'Adventure',
+            duration: '9 Days / 8 Nights',
+            price: '₹38,200',
+            difficulty: 'Challenging',
+            groupSize: '10-12 Nomads',
+            stay: 'Teahouse Lodges',
+            type: 'Mountain Trek',
+            image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&q=80&w=1000',
+            summary: 'Trek through rhododendron forests, Himalayan tea houses, and witness 8,000m mountain sunrises over Pokhara.',
+            fullDescription: 'An iconic alpine trek designed for active young travelers. Experience warm Sherpa hospitality, clear mountain air, and dramatic peak vistas.',
+            nomadsCount: 19,
+            nomadsGoingAvatars: [
+              'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100'
+            ],
+            itinerary: [
+              { title: 'Kathmandu to Pokhara', desc: 'Scenic bus drive along Trisuli River, lakeside evening.' },
+              { title: 'Ascent to Poon Hill', desc: 'Sunrise view over Dhaulagiri and Annapurna ranges.' }
+            ]
+          },
+          {
+            id: 'vietnam',
+            title: 'Vietnam Express Trail',
+            coordinates: '16.0544° N / 108.2022° E',
+            region: 'Southeast Asia',
+            category: 'International',
+            duration: '8 Days / 7 Nights',
+            price: '₹42,000',
+            difficulty: 'Easy',
+            groupSize: '12 Nomads',
+            stay: 'Boutique Hostels & Overnight Train',
+            type: 'Cultural Roadtrip',
+            image: 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&q=80&w=1000',
+            summary: 'Cruising Ha Long Bay, lantern walks in Hoi An, and night market food crawling in Hanoi.',
+            fullDescription: 'Traverse Vietnam from North to South. Overnight boat stays, motorbike mountain passes, and incredible egg coffee.',
+            nomadsCount: 22,
+            nomadsGoingAvatars: [],
+            itinerary: [
+              { title: 'Hanoi Old Quarter Food Crawl', desc: 'Sample pho, egg coffee, and meet the travel squad.' },
+              { title: 'Ha Long Bay Cruise', desc: 'Kayak through limestone karsts and sleep under the stars on boat.' }
+            ]
+          }
+        ],
+
+        // Mock Tribe Nomads
+        tribes: [
+          { name: 'Ananya Roy', age: 24, location: 'Mumbai', targetDestination: 'Ladakh (Oct 18)', bio: 'Landscape photographer looking for fellow sunrise enthusiasts and campervan buddies.', interests: ['Photography', 'Hiking', 'Stargazing'], trailsCompleted: 4, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=100' },
+          { name: 'Devendra K.', age: 27, location: 'Bengaluru', targetDestination: 'Bali (Oct 25)', bio: 'Software nomad looking for surf buddies and co-working villa mates.', interests: ['Surf', 'Co-working', 'Foodie'], trailsCompleted: 8, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100' },
+          { name: 'Tanya Sharma', age: 25, location: 'Delhi', targetDestination: 'Nepal (Nov 02)', bio: 'High altitude trekker eager for hot momos and mountain tea houses.', interests: ['Camping', 'Hiking', 'Chai'], trailsCompleted: 3, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100' }
+        ],
+
+        // Getters
+        get trendingTrails() {
+          return this.allTrails.slice(0, 3);
+        },
+
+        get filteredTrails() {
+          return this.allTrails.filter(t => {
+            const matchesCategory = this.selectedCategory === 'All' || t.category === this.selectedCategory;
+            const matchesRegion = this.selectedRegion === 'All' || t.region === this.selectedRegion;
+            const matchesSearch = !this.searchQuery || t.title.toLowerCase().includes(this.searchQuery.toLowerCase()) || t.summary.toLowerCase().includes(this.searchQuery.toLowerCase());
+            return matchesCategory && matchesRegion && matchesSearch;
+          });
+        },
+
+        get filteredTribes() {
+          if (this.communityFilterInterest === 'All') return this.tribes;
+          return this.tribes.filter(n => n.interests.includes(this.communityFilterInterest));
+        },
+
+        init() {
+          window.addEventListener('scroll', () => {
+            this.scrolled = window.scrollY > 40;
+          });
+          // Initialize Lucide icons
+          this.$nextTick(() => {
+            if (window.lucide) {
+              window.lucide.createIcons();
+            }
+          });
+        }
+      }
+    }
+  </script>
 </body>
 </html>
